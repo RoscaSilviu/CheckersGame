@@ -48,7 +48,10 @@ namespace CheckerGame.Models
             set { _cellType = value; NotifyPropertyChanged();
             }
         }
+        public Cell()
+        {
 
+        }
         public Cell(CellType cellType, Position position)
         {
             _cellType = cellType;

@@ -16,6 +16,7 @@ namespace CheckerGame.ViewModels
         public Cell SimpleCell { get; set; }
         GameLogic gameLogic;
 
+        public CellVM() { }
         public CellVM(Cell cell, GameLogic gameLogic)
         {
             SimpleCell = new Cell(cell.CellType, cell.Position, cell.Piece, cell.DisplayedImage);

@@ -5,38 +5,42 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CheckerGame.ViewModels"
         mc:Ignorable="d"
-        Title="GameWindow" Height="450" Width="800">
+        Title="GameWindow" Height="1069" Width="1330">
     <Window.DataContext>
         <local:GameVM/>
     </Window.DataContext>
+    <Grid>
+        <ItemsControl Name="grid" ItemsSource="{Binding GameBoard}"  VerticalAlignment="Center" HorizontalAlignment="Center">
+            <ItemsControl.Background>
+                <ImageBrush ImageSource="/CheckerGame;component/Resources/board.png" Stretch="UniformToFill"/>
+            </ItemsControl.Background>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <ItemsControl ItemsSource="{Binding}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Width="100" Height="100" BorderThickness="2" BorderBrush="#000000" >
+                                    <Button Command="{Binding ClickCommand}" CommandParameter="{Binding SimpleCell}">
+                                        <Button.Template>
+                                            <ControlTemplate>
+                                                <Image Source="{Binding SimpleCell.DisplayedImage}" Stretch="UniformToFill"/>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Button Name="SaveGameButton" Content="SaveGame" HorizontalAlignment="Left" VerticalAlignment="Top" Width="276" Command="{Binding SaveGame}" Height="70" Margin="789,0,0,0"/>
+        <Button Name="LoadGameButton" Content="LoadGame" HorizontalAlignment="Left" VerticalAlignment="Top" Width="276" Command="{Binding LoadGame}" Height="70" Margin="265,0,0,0"/>
 
-    <ItemsControl Name="grid" ItemsSource="{Binding GameBoard}"  VerticalAlignment="Center" HorizontalAlignment="Center">
-        <ItemsControl.Background>
-            <ImageBrush ImageSource="/CheckerGame;component/Resources/board.png" Stretch="UniformToFill"/>
-        </ItemsControl.Background>
-        <ItemsControl.ItemTemplate>
-            <DataTemplate>
-                <ItemsControl ItemsSource="{Binding}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Width="100" Height="100" BorderThickness="2" BorderBrush="#000000">
-                                <Button Command="{Binding ClickCommand}" CommandParameter="{Binding SimpleCell}">
-                                    <Button.Template>
-                                        <ControlTemplate>
-                                            <Image Source="{Binding SimpleCell.DisplayedImage}" Stretch="UniformToFill"/>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                </Button>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </DataTemplate>
-        </ItemsControl.ItemTemplate>
-    </ItemsControl>
+    </Grid>
 </Window>

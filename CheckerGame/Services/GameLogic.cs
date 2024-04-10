@@ -8,10 +8,11 @@ using System.Windows.Media.Animation;
 
 namespace CheckerGame.Services
 {
+
     class GameLogic
     {
         public ObservableCollection<ObservableCollection<CellVM>> Board { get; set; }
-        public PieceColor CurrentTurn { get; private set; }
+        public PieceColor CurrentTurn { get; set; }
 
         public GameLogic()
         {
@@ -28,41 +29,51 @@ namespace CheckerGame.Services
                 return 2;
             else return 0;
         }
-
-        public List<Position> GetPossibleMoves(Cell selectedCell)
+        List<Position> possibleMoves = new List<Position>();
+        private void GetNormalMoves(Cell selectedCell)
         {
-            List<Position> possibleMoves = new List<Position>();
+            int direction = (selectedCell.Piece.Color == PieceColor.Black) ? 1 : -1;
+            Position CurrentPosition = selectedCell.Position;
+
+            if (IsMoveValid(CurrentPosition.Row + direction, CurrentPosition.Column - 1) == 1)
+            {
+                possibleMoves.Add(new Position(CurrentPosition.Row + direction, CurrentPosition.Column - 1));
+            }
+            if (IsMoveValid(CurrentPosition.Row + direction, CurrentPosition.Column + 1) == 1)
+            {
+                possibleMoves.Add(new Position(CurrentPosition.Row + direction, CurrentPosition.Column + 1));
+            }
+        }
+        private void GetCaptureMoves(Cell selectedCell)
+        {
+            Position CurrentPosition = selectedCell.Position;
 
             if (selectedCell.Piece.Type == PieceType.Checker)
             {
                 int direction = (selectedCell.Piece.Color == PieceColor.Black) ? 1 : -1;
 
-                // Verificăm dacă mutarea diagonală în față-stânga este validă
-                if (IsMoveValid(selectedCell.Position.Row + direction, selectedCell.Position.Column - 1) == 1)
+                if (IsMoveValid(CurrentPosition.Row + direction, CurrentPosition.Column - 1) == 2)
                 {
-                    possibleMoves.Add(new Position(selectedCell.Position.Row + direction, selectedCell.Position.Column - 1));
+                    if (IsMoveValid(CurrentPosition.Row + 2 * direction, CurrentPosition.Column - 2) == 1)
+                    {
+                        possibleMoves.Add(new Position(CurrentPosition.Row + 2 * direction, CurrentPosition.Column - 2));
+                    }
                 }
-                else if (IsMoveValid(selectedCell.Position.Row + direction, selectedCell.Position.Column - 1) == 2)
+
+
+                if (IsMoveValid(CurrentPosition.Row + direction, CurrentPosition.Column + 1) == 2)
                 {
-                    if (IsMoveValid(selectedCell.Position.Row + 2*direction, selectedCell.Position.Column - 2) == 1)
-                    possibleMoves.Add(new Position(selectedCell.Position.Row + 2* direction, selectedCell.Position.Column - 2));
+                    if (IsMoveValid(CurrentPosition.Row + 2 * direction, CurrentPosition.Column + 2) == 1)
+                    {
+                        possibleMoves.Add(new Position(CurrentPosition.Row + 2 * direction, CurrentPosition.Column + 2));
+                    }
                 }
-                // Verificăm dacă mutarea diagonală în față-dreapta este validă
-                if (IsMoveValid(selectedCell.Position.Row + direction, selectedCell.Position.Column + 1) == 1)
-                {
-                    possibleMoves.Add(new Position(selectedCell.Position.Row + direction, selectedCell.Position.Column + 1));
-                }
-                else if (IsMoveValid(selectedCell.Position.Row + direction, selectedCell.Position.Column + 1) == 2)
-                {
-                    if (IsMoveValid(selectedCell.Position.Row + 2*direction, selectedCell.Position.Column + 2) == 1)
-                    possibleMoves.Add(new Position(selectedCell.Position.Row + 2*direction, selectedCell.Position.Column + 2));
-                }
+
             }
 
-            return possibleMoves;
         }
 
-        private void ModifyBoardWithPossibleMoves(List<Position> possibleMoves)
+        private void ModifyBoardWithPossibleMoves()
         {
             foreach (Position move in possibleMoves)
             {
@@ -70,7 +81,8 @@ namespace CheckerGame.Services
                 Board[move.Row][move.Column].SimpleCell.DisplayedImage = "/CheckerGame;component/Resources/green.png";
             }
         }
-        public void CapturePiece(Cell sourceCell, Cell targetCell)
+        public bool PieceCaptured = false;
+        public void CapturePieces(Cell sourceCell, Cell targetCell)
         {
             // Calculăm poziția piesei capturate
             int capturedRow = (sourceCell.Position.Row + targetCell.Position.Row) / 2;
@@ -78,32 +90,49 @@ namespace CheckerGame.Services
 
             // Obținem referința către celula piesei capturate
             Cell capturedCell = Board[capturedRow][capturedColumn].SimpleCell;
-
-            // Eliminăm piesa capturată din joc
             capturedCell.Piece = null;
             capturedCell.CellType = CellType.Empty;
             capturedCell.DisplayedImage = "/CheckerGame;component/Resources/empty.png";
+
+            SwapPieces(sourceCell, targetCell);
+            GetCaptureMoves(Board[targetCell.Position.Row][targetCell.Position.Column].SimpleCell);
+            ModifyBoardWithPossibleMoves();
+            if (possibleMoves.Count > 0)
+                PieceCaptured = true;
+            else CurrentTurn = (CurrentTurn == PieceColor.Black) ? PieceColor.White : PieceColor.Black;
+            Helper.PreviousCell = Board[targetCell.Position.Row][targetCell.Position.Column].SimpleCell;
+
         }
-
-
-        private void MovePiece(Cell selectedCell, Position newPosition)
+        private void SwapPieces(Cell sourceCell, Cell targetCell)
         {
-            Cell sourceCell = Board[selectedCell.Position.Row][selectedCell.Position.Column].SimpleCell;
-            Cell targetCell = Board[newPosition.Row][newPosition.Column].SimpleCell;
-            if (Math.Abs(targetCell.Position.Row - sourceCell.Position.Row) == 2)
-                CapturePiece(sourceCell, targetCell);
             targetCell.Piece = sourceCell.Piece;
             targetCell.CellType = CellType.Occupied;
             targetCell.DisplayedImage = sourceCell.Piece.Image;
             sourceCell.Piece = null;
             sourceCell.CellType = CellType.Empty;
             sourceCell.DisplayedImage = "/CheckerGame;component/Resources/empty.png";
-
-            CurrentTurn = (CurrentTurn == PieceColor.Black) ? PieceColor.White : PieceColor.Black;
+            RemoveGreenCells();
         }
+        private void MovePiece(Cell selectedCell, Position newPosition)
+        {
+            Cell sourceCell = Board[selectedCell.Position.Row][selectedCell.Position.Column].SimpleCell;
+            Cell targetCell = Board[newPosition.Row][newPosition.Column].SimpleCell;
+            if (Math.Abs(targetCell.Position.Row - sourceCell.Position.Row) == 1)
+            {
+                SwapPieces(sourceCell, targetCell);
+                CurrentTurn = (CurrentTurn == PieceColor.Black) ? PieceColor.White : PieceColor.Black;
+
+            }
+            else
+            {
+                CapturePieces(sourceCell, targetCell);
+            }
+        }
+
 
         private void RemoveGreenCells()
         {
+            possibleMoves.Clear();
             foreach (ObservableCollection<CellVM> row in Board)
             {
                 foreach (CellVM cell in row)
@@ -122,29 +151,42 @@ namespace CheckerGame.Services
         public void HandleBoardChange(Position pos)
         {
             CellVM selectedCell = Board[pos.Row][pos.Column];
-            if (selectedCell.SimpleCell.CellType == CellType.Empty)
+            if (PieceCaptured == false)
             {
-                RemoveGreenCells();
-                return;
-            }
-            if (selectedCell.SimpleCell.CellType == CellType.Occupied && selectedCell.SimpleCell.Piece.Color == CurrentTurn)
-            {
-                List<Position> possibleMoves = GetPossibleMoves(selectedCell.SimpleCell);
-                if (possibleMoves.Count > 0)
+                if (selectedCell.SimpleCell.CellType == CellType.Empty)
                 {
                     RemoveGreenCells();
-                    ModifyBoardWithPossibleMoves(possibleMoves);
-                    Helper.PreviousCell = selectedCell.SimpleCell;
+                    return;
                 }
-                else
+                if (selectedCell.SimpleCell.CellType == CellType.Occupied && selectedCell.SimpleCell.Piece.Color == CurrentTurn)
                 {
                     RemoveGreenCells();
+                    GetNormalMoves(selectedCell.SimpleCell);
+                    GetCaptureMoves(selectedCell.SimpleCell);
+                    if (possibleMoves.Count > 0)
+                    {
+                        ModifyBoardWithPossibleMoves();
+                        Helper.PreviousCell = selectedCell.SimpleCell;
+                    }
+                    else
+                    {
+                        RemoveGreenCells();
+                    }
+                }
+                if (selectedCell.SimpleCell.CellType == CellType.Green)
+                {
+                    MovePiece(Helper.PreviousCell, pos);
+                   // RemoveGreenCells();
                 }
             }
-            if (selectedCell.SimpleCell.CellType == CellType.Green)
+            else
             {
-                MovePiece(Helper.PreviousCell, pos);
-                RemoveGreenCells();
+                if (selectedCell.SimpleCell.CellType == CellType.Green)
+                {
+                    PieceCaptured = false;
+                    MovePiece(Helper.PreviousCell, pos);
+                    RemoveGreenCells();
+                }
             }
         }
 
