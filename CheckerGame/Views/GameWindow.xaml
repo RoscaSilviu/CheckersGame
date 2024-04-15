@@ -42,13 +42,13 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <Button Name="SaveGameButton" HorizontalAlignment="Left" VerticalAlignment="Top" Width="311" Height="89" Margin="10,139,0,0" BorderThickness="0" Command="{Binding SaveGame}">
+        <Button Name="SaveGameButton" Style="{StaticResource MyButtonStyle}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="311" Height="89" Margin="10,139,0,0" BorderThickness="0" Command="{Binding SaveGame}">
             <Button.Background>
                 <ImageBrush ImageSource="/CheckerGame;component/Resources/SaveButton.png" Stretch="Uniform"/>
             </Button.Background>
         </Button>
 
-        <Button Name="LoadGameButton"  HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" Width="311" Command="{Binding LoadGame}" Height="94" Margin="10,311,0,0">
+        <Button Name="LoadGameButton" Style="{StaticResource MyButtonStyle}"  HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" Width="311" Command="{Binding LoadGame}" Height="94" Margin="10,311,0,0">
             <Button.Background>
                 <ImageBrush ImageSource="/CheckerGame;component/Resources/LoadButton.png" Stretch="Uniform"/>
             </Button.Background>

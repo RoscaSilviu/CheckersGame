@@ -7,15 +7,36 @@
         xmlns:settings="clr-namespace:CheckerGame.Properties"
         xmlns:check="clr-namespace:CheckerGame.Views"
         mc:Ignorable="d"
-        Title="MainMenu" Height="450" Width="800">
+        Title="MainMenu" Height="1063" Width="1596">
+    
     <Window.DataContext>
         <local:ButtonsVM/>
     </Window.DataContext>
-    <Grid>
-        <Button Content="New Game" HorizontalAlignment="Center" Margin="0,122,0,0" VerticalAlignment="Top" Width="132" Command="{Binding StartGame}"/>
-        <Button Content="Statistics" HorizontalAlignment="Center" Margin="0,147,0,0" VerticalAlignment="Top"  RenderTransformOrigin="0.131,-0.238" Width="132" Command="{Binding Statistics}"/>
-        <Button Content="Help" HorizontalAlignment="Center" Margin="0,172,0,0" VerticalAlignment="Top" Width="132" Command="{Binding Help}"/>
-        <TextBlock Text="Allow multiple jumps:" VerticalAlignment="Top" Margin="334,229,-324,0"/>
-        <CheckBox x:Name="AllowMultipleMovesCheckBox" VerticalAlignment="Top" IsChecked="{Binding IsCheckboxChecked, Mode=TwoWay}" Margin="490,230,-490,0"/>
+    <Window.Background>
+        <ImageBrush ImageSource="/CheckerGame;component/Resources/background.jpg" />
+    </Window.Background>
+    <Grid Margin="0,0,0,-6">
+        <Button Content="" Style="{StaticResource MyButtonStyle}" BorderThickness="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="549,134,0,0" Width="411" Height="149" Command="{Binding StartGame}">
+            <Button.Background>
+                <ImageBrush ImageSource="/CheckerGame;component/Resources/NewGameButton.png" Stretch="Uniform"/>
+            </Button.Background>
+        </Button>
+
+        <Button Content="" Style="{StaticResource MyButtonStyle}" BorderThickness="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="549,296,0,0" Width="411" Height="149" Command="{Binding Statistics}">
+            <Button.Background>
+                <ImageBrush ImageSource="/CheckerGame;component/Resources/StatisticsButton.png" Stretch="Uniform"/>
+            </Button.Background>
+        </Button>
+        <Button Content="" Style="{StaticResource MyButtonStyle}" BorderThickness="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="549,508,0,0" Width="411" Height="149" Command="{Binding Help}">
+            <Button.Background>
+                <ImageBrush ImageSource="/CheckerGame;component/Resources/HelpButton.png" Stretch="Uniform"/>
+            </Button.Background>
+        </Button>
+        <Label Content="Allow Multiple Jumps" Margin="549,662,105,0" VerticalAlignment="Top" Foreground="White" FontFamily="Arial" FontSize="35" FontWeight="Bold"/>
+        <CheckBox x:Name="AllowMultipleMovesCheckBox"  IsChecked="{Binding IsCheckboxChecked, Mode=TwoWay}" Margin="938,667,105,0" VerticalAlignment="Top">
+            <CheckBox.LayoutTransform>
+                <ScaleTransform ScaleX="3" ScaleY="3" />
+            </CheckBox.LayoutTransform>
+        </CheckBox>
     </Grid>
 </Window>
