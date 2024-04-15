@@ -24,7 +24,6 @@ namespace CheckerGame.ViewModels
             
         }
 
-        //am adus celula din Model in VM
         private ICommand clickCommand;
         public ICommand ClickCommand
         {

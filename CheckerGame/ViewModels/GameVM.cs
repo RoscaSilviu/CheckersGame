@@ -12,7 +12,7 @@ using System.Windows.Input;
 
 namespace CheckerGame.ViewModels
 {
-    class GameVM
+    class GameVM : INotifyPropertyChanged
     {
         private GameLogic gameLogic = new GameLogic();
         public ObservableCollection<ObservableCollection<CellVM>> GameBoard { get; set; }
@@ -24,10 +24,49 @@ namespace CheckerGame.ViewModels
         }
         //public void LoadGame(Object obj)
         //{
-        //    (GameBoard, gameLogic.CurrentTurn) = FileHandler.LoadGame("gameData.json");
+        //    (GameBoards, gameLogic.CurrentTurn) = FileHandler.LoadGame("gameData.json");
         //    gameLogic.Board = GameBoard;
         //}
+        private string _textBoxText;
+        public string TextBoxText
+        {
+            get { return _textBoxText; }
+            set
+            {
+                if (_textBoxText != value)
+                {
+                    _textBoxText = value;
+                    OnPropertyChanged("TextBoxText"); // Notifică View-ul că s-a schimbat proprietatea
+                }
+            }
+        }
+        private string currentImagePath = "/CheckerGame;component/Resources/blackPiece.png";
 
+        public string CurrentImagePath
+        {
+            get { return currentImagePath; }
+            set
+            {
+                if (currentImagePath != value)
+                {
+                    currentImagePath = value;
+                    OnPropertyChanged("CurrentImagePath");
+                }
+            }
+        }
+        private string winnerText;
+        public string WinnerText
+        {
+            get { return winnerText; }
+            set
+            {
+                if (winnerText != value)
+                {
+                    winnerText = value;
+                    OnPropertyChanged("WinnerText"); // Notifică View-ul că s-a schimbat proprietatea
+                }
+            }
+        }
         private ICommand loadGame;
         public ICommand LoadGame
         {
@@ -39,8 +78,7 @@ namespace CheckerGame.ViewModels
                     {
                         try
                         {
-                            string filePath = "gameData.json"; 
-                            (board, gameLogic.CurrentTurn) = FileHandler.LoadGame(filePath);
+                            (board, gameLogic.CurrentTurn) = FileHandler.LoadGame();
                             GameBoard[0][0].SimpleCell.DisplayedImage = "/CheckerGame;component/Resources/green.png";
                             for (int i = 0; i < 8; i++)
                             {
@@ -71,19 +109,14 @@ namespace CheckerGame.ViewModels
             {
                 if (saveGame == null)
                 {
-                    // Definește comanda de încărcare a jocului
                     saveGame = new RelayCommand<object>(param =>
                     {
-                        // Apelează funcția LoadGame pentru a încărca datele jocului
                         try
                         {
                            FileHandler.SaveGame(CellVMBoardToCellBoard(GameBoard), gameLogic.CurrentTurn);
-                            // Aici poți face ce dorești cu datele încărcate, cum ar fi actualizarea ViewModel-ului sau a altor componente din aplicație
                         }
                         catch (Exception ex)
                         {
-                            // Tratează orice excepție care ar putea apărea în timpul încărcării jocului
-                            // De obicei, ar fi bine să afișezi un mesaj utilizatorului sau să înregistrezi detaliile excepției în scopuri de depanare
                             Console.WriteLine($"Eroare la salvarea jocului: {ex.Message}");
                         }
                     });
@@ -128,11 +161,108 @@ namespace CheckerGame.ViewModels
             }
             return result;
         }
-
+        private bool _isTextBoxVisible = false;
+        public bool IsTextBoxVisible
+        {
+            get { return _isTextBoxVisible; }
+            set
+            {
+                if (_isTextBoxVisible != value)
+                {
+                    _isTextBoxVisible = value;
+                    OnPropertyChanged("IsTextBoxVisible"); // Notifică View-ul că s-a schimbat proprietatea
+                }
+            }
+        }
         private void ExecuteClickAction(Position pos)
         {
             gameLogic.Board = GameBoard;
             gameLogic.HandleBoardChange(pos);
+            gameLogic.UpdateRemainingPieces();
+            CurrentTurn = gameLogic.CurrentTurn.ToString();
+           
+            if (CurrentTurn == "White" && DisplayWhiteRemainingText!= "0")
+                CurrentImagePath = "/CheckerGame;component/Resources/whitePiece.png";
+            else if (CurrentTurn == "Black" && DisplayBlackRemainingText != "0")
+                CurrentImagePath = "/CheckerGame;component/Resources/blackPiece.png";
+            WinnerText = gameLogic.Winner;
+            if (gameLogic.Winner != null)
+            {
+                CurrentTurnLabel = "Winner: ";
+                if (gameLogic.Winner == "White")
+                    CurrentImagePath = "/CheckerGame;component/Resources/whitePiece.png";
+                else if (gameLogic.Winner == "Black")
+                    CurrentImagePath = "/CheckerGame;component/Resources/blackPiece.png";
+            }
+            ChangeWhiteRemainingText(gameLogic.WhiteRemainingPieces.ToString());
+            ChangeBlackRemainingText(gameLogic.BlackRemainingPieces.ToString());
         }
+
+        private string displayWhiteRemainingText = "12";
+
+        public string DisplayWhiteRemainingText
+        {
+            get { return displayWhiteRemainingText; }
+            set
+            {
+                displayWhiteRemainingText = value;
+                OnPropertyChanged("DisplayWhiteRemainingText");
+            }
+        }
+        private string currentTurn = "Black";
+
+        public string CurrentTurn
+        {
+            get { return currentTurn; }
+            set
+            {
+                currentTurn = value;
+                OnPropertyChanged("CurrentTurn");
+            }
+        }
+
+        public void ChangeWhiteRemainingText(string text)
+        {
+            DisplayWhiteRemainingText = text;
+        }
+        private string currentTurnLabel = "Current Turn:";
+
+        public string CurrentTurnLabel
+        {
+            get { return currentTurnLabel; }
+            set
+            {
+                currentTurnLabel = value;
+                OnPropertyChanged("CurrentTurnLabel");
+            }
+        }
+        private string displayBlackRemainingText = "12";
+
+        public string DisplayBlackRemainingText
+        {
+            get { return displayBlackRemainingText; }
+            set
+            {
+                displayBlackRemainingText = value;
+                OnPropertyChanged("DisplayBlackRemainingText");
+            }
+        }
+
+        public void ChangeBlackRemainingText(string text)
+        {
+            DisplayBlackRemainingText = text;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+
+
+
+
+
     }
 }

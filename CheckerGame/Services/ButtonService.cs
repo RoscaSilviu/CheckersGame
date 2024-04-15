@@ -24,12 +24,15 @@ namespace CheckerGame.Services
 
         public void Statistics(Object obj)
         {
-
+           StatsWindow window = new StatsWindow();
+            window.Show();
         }
 
         public void Help(Object obj)
         {
-
+            HelpWindow window = new HelpWindow();
+            window.Show();
+            
         }
     }
 }

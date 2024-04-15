@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CheckerGame.ViewModels"
+        xmlns:settings="clr-namespace:CheckerGame.Properties"
+        xmlns:check="clr-namespace:CheckerGame.Views"
         mc:Ignorable="d"
         Title="MainMenu" Height="450" Width="800">
     <Window.DataContext>
@@ -11,9 +13,9 @@
     </Window.DataContext>
     <Grid>
         <Button Content="New Game" HorizontalAlignment="Center" Margin="0,122,0,0" VerticalAlignment="Top" Width="132" Command="{Binding StartGame}"/>
-        <Button Content="Load Game" HorizontalAlignment="Center" Margin="0,147,0,0" VerticalAlignment="Top" Width="132" Command="{Binding LoadGame}"/>
-        <Button Content="Statistics" HorizontalAlignment="Center" Margin="0,172,0,0" VerticalAlignment="Top"  RenderTransformOrigin="0.131,-0.238" Width="132" Command="{Binding Statistics}"/>
-        <Button Content="Help" HorizontalAlignment="Center" Margin="0,197,0,0" VerticalAlignment="Top" Width="132" Command="{Binding Help}"/>
-
+        <Button Content="Statistics" HorizontalAlignment="Center" Margin="0,147,0,0" VerticalAlignment="Top"  RenderTransformOrigin="0.131,-0.238" Width="132" Command="{Binding Statistics}"/>
+        <Button Content="Help" HorizontalAlignment="Center" Margin="0,172,0,0" VerticalAlignment="Top" Width="132" Command="{Binding Help}"/>
+        <TextBlock Text="Allow multiple jumps:" VerticalAlignment="Top" Margin="334,229,-324,0"/>
+        <CheckBox x:Name="AllowMultipleMovesCheckBox" VerticalAlignment="Top" IsChecked="{Binding IsCheckboxChecked, Mode=TwoWay}" Margin="490,230,-490,0"/>
     </Grid>
 </Window>

@@ -5,10 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CheckerGame.ViewModels"
         mc:Ignorable="d"
-        Title="GameWindow" Height="1069" Width="1330">
+        Title="GameWindow" Height="1080" Width="1920">
     <Window.DataContext>
         <local:GameVM/>
     </Window.DataContext>
+    <Window.Background>
+        <ImageBrush ImageSource="/CheckerGame;component/Resources/background.jpg" />
+    </Window.Background>
     <Grid>
         <ItemsControl Name="grid" ItemsSource="{Binding GameBoard}"  VerticalAlignment="Center" HorizontalAlignment="Center">
             <ItemsControl.Background>
@@ -24,7 +27,7 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Width="100" Height="100" BorderThickness="2" BorderBrush="#000000" >
+                                <Border Width="100" Height="100" BorderThickness="0" BorderBrush="#000000" >
                                     <Button Command="{Binding ClickCommand}" CommandParameter="{Binding SimpleCell}">
                                         <Button.Template>
                                             <ControlTemplate>
@@ -39,8 +42,38 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <Button Name="SaveGameButton" Content="SaveGame" HorizontalAlignment="Left" VerticalAlignment="Top" Width="276" Command="{Binding SaveGame}" Height="70" Margin="789,0,0,0"/>
-        <Button Name="LoadGameButton" Content="LoadGame" HorizontalAlignment="Left" VerticalAlignment="Top" Width="276" Command="{Binding LoadGame}" Height="70" Margin="265,0,0,0"/>
+        <Button Name="SaveGameButton" HorizontalAlignment="Left" VerticalAlignment="Top" Width="311" Height="89" Margin="10,139,0,0" BorderThickness="0" Command="{Binding SaveGame}">
+            <Button.Background>
+                <ImageBrush ImageSource="/CheckerGame;component/Resources/SaveButton.png" Stretch="Uniform"/>
+            </Button.Background>
+        </Button>
 
+        <Button Name="LoadGameButton"  HorizontalAlignment="Left" BorderThickness="0" VerticalAlignment="Top" Width="311" Command="{Binding LoadGame}" Height="94" Margin="10,311,0,0">
+            <Button.Background>
+                <ImageBrush ImageSource="/CheckerGame;component/Resources/LoadButton.png" Stretch="Uniform"/>
+            </Button.Background>
+        </Button>
+        <Label Content="Black Pieces Remaining" Margin="1216,366,-1206,0" VerticalAlignment="Top" Foreground="White" FontFamily="Arial" FontSize="25" FontWeight="Bold"/>
+        <Label Content="White Pieces Remaining" Margin="1216,613,-1216,0" VerticalAlignment="Top" Foreground="White" FontFamily="Arial" FontSize="25" FontWeight="Bold" />
+
+        <Label Content="{Binding CurrentTurnLabel}" Margin="1265,83,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+       Foreground="White" FontFamily="Arial" FontSize="30" FontWeight="Bold"/>
+        <Label HorizontalAlignment="Left" VerticalAlignment="Top" Width="154" Height="156" Margin="1284,157,0,0" BorderThickness="0">
+            <Label.Background>
+                <ImageBrush ImageSource="{Binding CurrentImagePath}"/>
+            </Label.Background>
+        </Label>
+        <Label HorizontalAlignment="Left" VerticalAlignment="Top" Width="70" Height="70" Margin="1320,401,0,0" BorderThickness="0">
+            <Label.Background>
+                <ImageBrush ImageSource="/CheckerGame;component/Resources/blackPiece.png"/>
+            </Label.Background>
+        </Label>
+        <Label HorizontalAlignment="Left" VerticalAlignment="Top" Width="70" Height="70" Margin="1320,653,0,0" BorderThickness="0">
+            <Label.Background>
+                <ImageBrush ImageSource="/CheckerGame;component/Resources/whitePiece.png"/>
+            </Label.Background>
+        </Label>
+        <TextBlock Margin="1340,422,-1330,0" TextWrapping="Wrap" Text="{Binding DisplayBlackRemainingText, Mode=OneWay}" VerticalAlignment="Top" Foreground="White" FontFamily="Arial" FontSize="25" FontWeight="Bold"/>
+        <TextBlock Margin="1340,674,-1330,0" TextWrapping="Wrap" Text="{Binding DisplayWhiteRemainingText, Mode=OneWay}" VerticalAlignment="Top" Foreground="Black" FontFamily="Arial" FontSize="25" FontWeight="Bold" />
     </Grid>
 </Window>

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.IO;
+using Microsoft.Win32;
 
 namespace CheckerGame.Services
 {
@@ -15,51 +16,131 @@ namespace CheckerGame.Services
     {
         public static void SaveGame(ObservableCollection<ObservableCollection<Cell>> board, PieceColor CurrentTurn)
         {
-            // Crează un obiect care să conțină datele pe care vrei să le salvezi
             var gameData = new
             {
                 Board = board,
                 CurrentTurn = CurrentTurn
             };
 
-            // Converteste obiectul în format JSON
             string json = JsonConvert.SerializeObject(gameData);
 
-            // Specifică calea și numele fișierului în care vrei să salvezi datele
-            string filePath = "gameData.json";
+            var saveFileDialog = new SaveFileDialog();
+            saveFileDialog.DefaultExt = ".json";
+            saveFileDialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
 
-            // Scrie datele JSON în fișier
-            File.WriteAllText(filePath, json);
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                string filePath = saveFileDialog.FileName;
+
+                File.WriteAllText(filePath, json);
+            }
         }
 
-        public static (ObservableCollection<ObservableCollection<Cell>> board, PieceColor currentTurn) LoadGame(string filePath)
+
+        public static (ObservableCollection<ObservableCollection<Cell>> board, PieceColor currentTurn) LoadGame()
         {
-            // Verificăm dacă fișierul există
-            if (!File.Exists(filePath))
+            var openFileDialog = new OpenFileDialog();
+            openFileDialog.DefaultExt = ".json";
+            openFileDialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
+
+            if (openFileDialog.ShowDialog() == true)
             {
-                throw new FileNotFoundException("Fișierul specificat nu a fost găsit.", filePath);
+                string filePath = openFileDialog.FileName;
+
+                try
+                {
+                    string json = File.ReadAllText(filePath);
+
+                    var gameData = JsonConvert.DeserializeObject<dynamic>(json);
+
+                    var board = gameData["Board"].ToObject<ObservableCollection<ObservableCollection<Cell>>>();
+                    var currentTurn = gameData["CurrentTurn"].ToObject<PieceColor>();
+
+                    return (board, currentTurn);
+                }
+                catch (JsonException ex)
+                {
+                    throw new JsonException("Eroare în parsarea fișierului JSON.", ex);
+                }
             }
+            return (null, PieceColor.Black);
+        }
 
-            try
+        public static void SaveStats(string winner, int piecesLeft)
+        {
+            // Calea către fișierul text
+            string filePath = "stats.txt";
+
+            // Verificăm dacă fișierul există și îl citim
+            if (File.Exists(filePath))
             {
-                // Citim datele JSON din fișier
-                string json = File.ReadAllText(filePath);
+                // Citim valorile actuale din fișier
+                string[] lines = File.ReadAllLines(filePath);
 
-                // Deserializăm datele JSON în obiectul corespunzător
-                var gameData = JsonConvert.DeserializeObject<dynamic>(json);
+                // Parsăm și stocăm valorile actuale
+                int whiteScore = int.Parse(lines[0].Split(':')[1].Trim());
+                int blackScore = int.Parse(lines[1].Split(':')[1].Trim());
+                int highScore = int.Parse(lines[2].Split(':')[1].Trim());
 
-                // Extragem valorile necesare din obiectul deserializat
-                var board = gameData["Board"].ToObject<ObservableCollection<ObservableCollection<Cell>>>();
-                var currentTurn = gameData["CurrentTurn"].ToObject<PieceColor>();
+                // Actualizăm scorul în funcție de câștigător
+                if (winner == "White")
+                {
+                    whiteScore++;
+                }
+                else if (winner == "Black")
+                {
+                    blackScore++;
+                }
 
-                // Returnăm obiectele încărcate din fișier
-                return (board, currentTurn);
+                // Actualizăm scorul maxim
+                if (piecesLeft > highScore)
+                {
+                    highScore = piecesLeft;
+                }
+
+                // Scriem valorile actualizate înapoi în fișier
+                using (StreamWriter writer = new StreamWriter(filePath))
+                {
+                    writer.WriteLine($"White : {whiteScore}");
+                    writer.WriteLine($"Black : {blackScore}");
+                    writer.WriteLine($"HighScore: {highScore}");
+                }
             }
-            catch (JsonException ex)
+            else
             {
-                // Handle any JSON parsing errors
-                throw new JsonException("Eroare în parsarea fișierului JSON.", ex);
+                // Dacă fișierul nu există, creăm unul nou și scriem valorile în el
+                using (StreamWriter writer = new StreamWriter(filePath))
+                {
+                    writer.WriteLine("White : 0");
+                    writer.WriteLine("Black : 0");
+                    writer.WriteLine("HighScore: 0");
+                }
             }
         }
+        public static (string, string, string) LoadStats()
+        {
+            // Calea către fișierul text
+            string filePath = "stats.txt";
+
+            int whiteScore = 0;
+            int blackScore = 0;
+            int highScore = 0;
+
+            // Verificăm dacă fișierul există și îl citim
+            if (File.Exists(filePath))
+            {
+                // Citim valorile din fișier
+                string[] lines = File.ReadAllLines(filePath);
+
+                // Parsăm și stocăm valorile
+                whiteScore = int.Parse(lines[0].Split(':')[1].Trim());
+                blackScore = int.Parse(lines[1].Split(':')[1].Trim());
+                highScore = int.Parse(lines[2].Split(':')[1].Trim());
+            }
+
+            // Returnăm valorile citite din fișier sau valorile implicite (0) dacă fișierul nu există
+            return (whiteScore.ToString(), blackScore.ToString(), highScore.ToString());
+        }
+
     }
 }

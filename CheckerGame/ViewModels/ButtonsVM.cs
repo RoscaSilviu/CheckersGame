@@ -7,13 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CheckerGame.Properties;
 
 namespace CheckerGame.ViewModels
 {
      class ButtonsVM
     {
         private ButtonService buttonService = new ButtonService();
-        private GameVM gameVM= new GameVM();
         private ICommand startGame;
         public ICommand StartGame
         {
@@ -26,19 +26,18 @@ namespace CheckerGame.ViewModels
                 return startGame;
             }
         }
-
-        //private ICommand loadGame;
-        //public ICommand LoadGame
-        //{
-        //    get
-        //    {
-        //        if (loadGame == null)
-        //        {
-        //            loadGame = new RelayCommand<object>(gameVM.LoadGame);
-        //        }
-        //        return loadGame;
-        //    }
-        //}
+        public bool IsCheckboxChecked
+        {
+            get { return Settings.Default.IsCheckboxChecked; }
+            set
+            {
+                if (Settings.Default.IsCheckboxChecked != value)
+                {
+                    Settings.Default.IsCheckboxChecked = value;
+                    Settings.Default.Save();
+                }
+            }
+        }
 
         private ICommand statistics;
         public ICommand Statistics

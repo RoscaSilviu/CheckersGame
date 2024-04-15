@@ -1,9 +1,11 @@
 ﻿using CheckerGame.Models;
+using CheckerGame.Properties;
 using CheckerGame.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Media.Animation;
 
 namespace CheckerGame.Services
@@ -14,11 +16,56 @@ namespace CheckerGame.Services
         public ObservableCollection<ObservableCollection<CellVM>> Board { get; set; }
         public PieceColor CurrentTurn { get; set; }
 
+        public string Winner;
+        
+        public bool MultipleJumpsAllowed { get; set; }
+        public int WhiteRemainingPieces { get; set; }
+        public int BlackRemainingPieces { get; set; }
         public GameLogic()
         {
             CurrentTurn = PieceColor.Black; // Se începe cu jucătorul cu piesele negre
+            MultipleJumpsAllowed = Settings.Default.IsCheckboxChecked;
         }
 
+
+        public void UpdateRemainingPieces()
+        {
+            BlackRemainingPieces = 0;
+            WhiteRemainingPieces = 0;
+            foreach (ObservableCollection<CellVM> row in Board)
+            {
+                foreach (CellVM cell in row)
+                {
+                    if (cell.SimpleCell.Piece != null)
+                    {
+                        if (cell.SimpleCell.Piece.Color == PieceColor.Black)
+                        {
+                            BlackRemainingPieces++;
+                        }
+                        else WhiteRemainingPieces++;
+
+                    }
+                }
+            }
+            if (BlackRemainingPieces == 0 || WhiteRemainingPieces == 0)
+            {
+                GameOver();
+            }
+        }
+
+        public void GameOver()
+        {
+            if (BlackRemainingPieces == 0)
+            {
+                Winner = "White";
+                FileHandler.SaveStats(Winner, WhiteRemainingPieces);
+            }
+            else
+            {
+                Winner = "Black";
+                FileHandler.SaveStats(Winner, BlackRemainingPieces);
+            }
+        }
         public int IsMoveValid(int row, int column)
         {
             if (row < 0 || row >= Board.Count || column < 0 || column >= Board.Count)
@@ -29,19 +76,42 @@ namespace CheckerGame.Services
                 return 2;
             else return 0;
         }
+
         List<Position> possibleMoves = new List<Position>();
         private void GetNormalMoves(Cell selectedCell)
         {
             int direction = (selectedCell.Piece.Color == PieceColor.Black) ? 1 : -1;
             Position CurrentPosition = selectedCell.Position;
+            if (selectedCell.Piece.Type == PieceType.Checker)
+            {
 
-            if (IsMoveValid(CurrentPosition.Row + direction, CurrentPosition.Column - 1) == 1)
-            {
-                possibleMoves.Add(new Position(CurrentPosition.Row + direction, CurrentPosition.Column - 1));
+                if (IsMoveValid(CurrentPosition.Row + direction, CurrentPosition.Column - 1) == 1)
+                {
+                    possibleMoves.Add(new Position(CurrentPosition.Row + direction, CurrentPosition.Column - 1));
+                }
+                if (IsMoveValid(CurrentPosition.Row + direction, CurrentPosition.Column + 1) == 1)
+                {
+                    possibleMoves.Add(new Position(CurrentPosition.Row + direction, CurrentPosition.Column + 1));
+                }
             }
-            if (IsMoveValid(CurrentPosition.Row + direction, CurrentPosition.Column + 1) == 1)
+            else if (selectedCell.Piece.Type == PieceType.King)
             {
-                possibleMoves.Add(new Position(CurrentPosition.Row + direction, CurrentPosition.Column + 1));
+                if (IsMoveValid(CurrentPosition.Row + 1, CurrentPosition.Column - 1) == 1)
+                {
+                    possibleMoves.Add(new Position(CurrentPosition.Row + 1, CurrentPosition.Column - 1));
+                }
+                if (IsMoveValid(CurrentPosition.Row + 1, CurrentPosition.Column + 1) == 1)
+                {
+                    possibleMoves.Add(new Position(CurrentPosition.Row + 1, CurrentPosition.Column + 1));
+                }
+                if (IsMoveValid(CurrentPosition.Row -1, CurrentPosition.Column - 1) == 1)
+                {
+                    possibleMoves.Add(new Position(CurrentPosition.Row -1 , CurrentPosition.Column - 1));
+                }
+                if (IsMoveValid(CurrentPosition.Row -1, CurrentPosition.Column + 1) == 1)
+                {
+                    possibleMoves.Add(new Position(CurrentPosition.Row -1 , CurrentPosition.Column + 1));
+                }
             }
         }
         private void GetCaptureMoves(Cell selectedCell)
@@ -70,6 +140,44 @@ namespace CheckerGame.Services
                 }
 
             }
+            else if (selectedCell.Piece.Type == PieceType.King)
+            {
+                // Verifică dacă se poate deplasa în sus-stânga
+                if (IsMoveValid(CurrentPosition.Row - 1, CurrentPosition.Column - 1) == 2)
+                {
+                    if (IsMoveValid(CurrentPosition.Row - 2, CurrentPosition.Column - 2) == 1)
+                    {
+                        possibleMoves.Add(new Position(CurrentPosition.Row - 2, CurrentPosition.Column - 2));
+                    }
+                }
+
+                // Verifică dacă se poate deplasa în sus-dreapta
+                if (IsMoveValid(CurrentPosition.Row - 1, CurrentPosition.Column + 1) == 2)
+                {
+                    if (IsMoveValid(CurrentPosition.Row - 2, CurrentPosition.Column + 2) == 1)
+                    {
+                        possibleMoves.Add(new Position(CurrentPosition.Row - 2, CurrentPosition.Column + 2));
+                    }
+                }
+
+                // Verifică dacă se poate deplasa în jos-stânga
+                if (IsMoveValid(CurrentPosition.Row + 1, CurrentPosition.Column - 1) == 2)
+                {
+                    if (IsMoveValid(CurrentPosition.Row + 2, CurrentPosition.Column - 2) == 1)
+                    {
+                        possibleMoves.Add(new Position(CurrentPosition.Row + 2, CurrentPosition.Column - 2));
+                    }
+                }
+
+                // Verifică dacă se poate deplasa în jos-dreapta
+                if (IsMoveValid(CurrentPosition.Row + 1, CurrentPosition.Column + 1) == 2)
+                {
+                    if (IsMoveValid(CurrentPosition.Row + 2, CurrentPosition.Column + 2) == 1)
+                    {
+                        possibleMoves.Add(new Position(CurrentPosition.Row + 2, CurrentPosition.Column + 2));
+                    }
+                }
+            }
 
         }
 
@@ -95,11 +203,17 @@ namespace CheckerGame.Services
             capturedCell.DisplayedImage = "/CheckerGame;component/Resources/empty.png";
 
             SwapPieces(sourceCell, targetCell);
+            if (MultipleJumpsAllowed)
+            {
             GetCaptureMoves(Board[targetCell.Position.Row][targetCell.Position.Column].SimpleCell);
             ModifyBoardWithPossibleMoves();
             if (possibleMoves.Count > 0)
                 PieceCaptured = true;
-            else CurrentTurn = (CurrentTurn == PieceColor.Black) ? PieceColor.White : PieceColor.Black;
+            else if (WhiteRemainingPieces !=0 && BlackRemainingPieces !=0)
+                    CurrentTurn = (CurrentTurn == PieceColor.Black) ? PieceColor.White : PieceColor.Black;
+            }
+            else if (WhiteRemainingPieces != 0 && BlackRemainingPieces != 0)
+                CurrentTurn = (CurrentTurn == PieceColor.Black) ? PieceColor.White : PieceColor.Black;
             Helper.PreviousCell = Board[targetCell.Position.Row][targetCell.Position.Column].SimpleCell;
 
         }
@@ -120,12 +234,25 @@ namespace CheckerGame.Services
             if (Math.Abs(targetCell.Position.Row - sourceCell.Position.Row) == 1)
             {
                 SwapPieces(sourceCell, targetCell);
-                CurrentTurn = (CurrentTurn == PieceColor.Black) ? PieceColor.White : PieceColor.Black;
+                if (WhiteRemainingPieces != 0 && BlackRemainingPieces != 0)
+                    CurrentTurn = (CurrentTurn == PieceColor.Black) ? PieceColor.White : PieceColor.Black;
 
             }
             else
             {
                 CapturePieces(sourceCell, targetCell);
+            }
+            if (targetCell.Piece.Type == PieceType.Checker && targetCell.Piece.Color == PieceColor.Black && targetCell.Position.Row == 7)
+            {
+                targetCell.Piece.Type = PieceType.King;
+                targetCell.Piece.Image = "/CheckerGame;component/Resources/blackPieceKing.png";
+                targetCell.DisplayedImage = "/CheckerGame;component/Resources/blackPieceKing.png";
+            }
+            if (targetCell.Piece.Type == PieceType.Checker && targetCell.Piece.Color == PieceColor.White && targetCell.Position.Row == 0)
+            {
+                targetCell.Piece.Type = PieceType.King;
+                targetCell.Piece.Image = "/CheckerGame;component/Resources/whitePieceKing.png";
+                targetCell.DisplayedImage = "/CheckerGame;component/Resources/whitePieceKing.png";
             }
         }
 
@@ -146,7 +273,6 @@ namespace CheckerGame.Services
             }
         }
 
-        public Action<Position> OnClickCell;
 
         public void HandleBoardChange(Position pos)
         {
@@ -176,7 +302,7 @@ namespace CheckerGame.Services
                 if (selectedCell.SimpleCell.CellType == CellType.Green)
                 {
                     MovePiece(Helper.PreviousCell, pos);
-                   // RemoveGreenCells();
+                    // RemoveGreenCells();
                 }
             }
             else
@@ -190,6 +316,7 @@ namespace CheckerGame.Services
             }
         }
 
+        public Action<Position> OnClickCell;
         public void ClickAction(Cell selectedCell)
         {
             OnClickCell(selectedCell.Position);

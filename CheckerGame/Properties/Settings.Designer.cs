@@ -22,5 +22,17 @@ namespace CheckerGame.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsCheckboxChecked {
+            get {
+                return ((bool)(this["IsCheckboxChecked"]));
+            }
+            set {
+                this["IsCheckboxChecked"] = value;
+            }
+        }
     }
 }

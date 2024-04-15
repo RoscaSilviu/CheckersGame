@@ -1,5 +1,4 @@
-﻿using CheckerGame.Properties;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,11 +15,11 @@ using System.Windows.Shapes;
 namespace CheckerGame.Views
 {
     /// <summary>
-    /// Interaction logic for MainMenu.xaml
+    /// Interaction logic for StatsWindow.xaml
     /// </summary>
-    public partial class MainMenu : Window
+    public partial class StatsWindow : Window
     {
-        public MainMenu()
+        public StatsWindow()
         {
             InitializeComponent();
         }

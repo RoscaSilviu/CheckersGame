@@ -1,0 +1,13 @@
+﻿<Window x:Class="CheckerGame.Views.HelpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CheckerGame.Views"
+        mc:Ignorable="d"
+        Title="HelpWindow" Height="450" Width="800">
+    <Grid>
+        <Label Content="Nume : Rosca Silviu Ionut&#xD;&#xA;Grupa : 10LF224&#xD;&#xA;Adresa : silviu.rosca@student.unitbv.ro&#xD;&#xA;Descrierea jocului :  Checkers este un joc de masă clasic pentru doi jucători, care se joacă pe o tablă de 64 de pătrate,&#xD;&#xA; alternând între pătrate roșii și negre. Fiecare jucător își controlează piesele de pe unul dintre cele două seturi de pătrate &#xD;&#xA;diagonale de pe partea de jos a tablei.&#xD;&#xA;Scopul jocului este să capturezi toate piesele adversarului sau să-l blochezi în așa fel încât să nu mai poată face mutări&#xD;&#xA; valide.&#xD;&#xA;Piesele pot fi mutate în diagonală pe pătratele libere, dar pot să sară peste piesele inamice dacă există un spațiu liber&#xD;&#xA; imediat după ele. O piesă care sare peste o piesă inamică este capturată și eliminată de pe tablă.&#xD;&#xA;Dacă o piesă ajunge pe ultimul rând al tabelei adversarului, ea devine &quot;rege&quot; și poate să se mute în diagonală în orice &#xD;&#xA;direcție.&#xD;&#xA;Jocul continuă până când unul dintre jucători reușește să captureze toate piesele adversarului sau să-l blocheze, moment&#xD;&#xA; în care acel jucător este declarat câștigător. Checkers este un joc de strategie simplu de înțeles, dar care necesită gândire strategică și planificare pentru a obține victoria." HorizontalAlignment="Left" Margin="82,78,0,0" VerticalAlignment="Top" Height="346" Width="669"/>
+
+    </Grid>
+</Window>

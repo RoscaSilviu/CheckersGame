@@ -22,6 +22,7 @@ namespace CheckerGame.Views
         public GameWindow()
         {
             InitializeComponent();
+            WindowState = WindowState.Maximized;
         }
     }
 }
